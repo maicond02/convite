@@ -28,11 +28,12 @@ button:focus-visible, a:focus-visible {
   --content-width: 520px;
   --page-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 100svh;
-  padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
-  background: var(--blue) url("/images/arte-fundo.webp") center / cover no-repeat;
+  height: 100svh;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .invitation--cover { cursor: pointer; }
@@ -64,41 +65,47 @@ button:focus-visible, a:focus-visible {
   clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%);
 }
 
-.invitation--open {
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  overflow-x: clip;
+.invitation .artwork { -webkit-user-drag: none; }
+
+/* Cada página é uma folha inteira: fundo + conteúdo, ocupando a tela toda */
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
+  background: var(--blue) url("/images/arte-fundo.webp") center / cover no-repeat;
 }
 
-.invitation .artwork { -webkit-user-drag: none; }
+.sheet--sob { z-index: 1; }
+.sheet--frente { z-index: 3; }
+
+/* Sombra que a folha levantada projeta na página de baixo */
+.page-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Verso do papel (parte dobrada) */
+.page-back-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(40, 60, 89, 0.35));
+}
+
+.page-back {
+  position: absolute;
+  inset: 0;
+}
 
 .invitation-page {
   position: relative;
   width: calc(min(100%, var(--content-width)) - 40px);
-  transition: transform 200ms ease-out;
 }
-
-.story-progress {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 8px);
-  left: 50%;
-  display: flex;
-  gap: 4px;
-  width: min(calc(100% - 32px), calc(var(--content-width) - 40px));
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.story-progress span {
-  flex: 1;
-  height: 2px;
-  border-radius: 1px;
-  background: #283c5933;
-}
-
-.story-progress span.is-seen { background: #283c59b3; }
 
 .invitation-page--cover {
   display: grid;
@@ -124,12 +131,6 @@ button:focus-visible, a:focus-visible {
 .seal-button:hover, .seal-button:active {
   filter: brightness(1.05);
 }
-
-.invitation-page--open {
-  animation: reveal-next 240ms ease-out backwards;
-}
-
-.invitation-page--voltar { animation-name: reveal-previous; }
 
 .map-link {
   position: absolute;
@@ -164,19 +165,4 @@ button:focus-visible, a:focus-visible {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
-}
-
-@keyframes reveal-next {
-  from { opacity: 0; transform: translateX(32px); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes reveal-previous {
-  from { opacity: 0; transform: translateX(-32px); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .invitation-page--open { animation: none; }
-  .invitation-page { transition: none; }
 }
