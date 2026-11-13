@@ -188,6 +188,50 @@ button:focus-visible, a:focus-visible {
   mix-blend-mode: multiply;
 }
 
+/* A estampa de cada modelo é o papel da capa, com relevo nas dobras. */
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) {
+  --flap-shoulder: 34%;
+  --flap-tip: 58.5%;
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.18 .32' numOctaves='4' stitchTiles='stitch'/%3E%3CfeDiffuseLighting lighting-color='%23f7f1e6' surfaceScale='2.4'%3E%3CfeDistantLight azimuth='235' elevation='45'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) :is(.envelope__folds, .envelope__flap-edge) {
+  display: none;
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) .envelope__flap {
+  clip-path: polygon(0 0, 100% 0, 100% var(--flap-shoulder), 51% var(--flap-tip), 49% var(--flap-tip), 0 var(--flap-shoulder));
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) > .invitation-page--cover {
+  position: absolute;
+  top: var(--flap-tip);
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) .envelope__body::after {
+  background: var(--paper-grain), radial-gradient(ellipse at 52% 32%, #fff9ef 15%, #45566a 100%);
+  background-blend-mode: soft-light;
+  opacity: .3;
+  mix-blend-mode: soft-light;
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) .envelope__flap-wrap {
+  filter: drop-shadow(0 3px 2px #283c5966) drop-shadow(0 9px 9px #283c594d);
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) .envelope__flap::after {
+  background: var(--paper-grain), linear-gradient(155deg, #fffaf1, #e5ebf4 72%, #485b72);
+  background-blend-mode: soft-light;
+  mix-blend-mode: soft-light;
+  opacity: .6;
+}
+
+.sheet--capa:not(.sheet--fita, .sheet--aquarela) .seal-button {
+  filter: drop-shadow(0 4px 5px #26364b59);
+}
+
 .sheet--capa > section { position: relative; z-index: 3; }
 
 /* Abertura: o selo afunda e se solta, a aba de cima abre para trás
