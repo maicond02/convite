@@ -20,16 +20,20 @@ const pages = [
 ];
 
 /**
- * Convite completo. `fundo` troca a cor atrás das flores (modelos 2 e 3),
- * usando a arte com fundo transparente; sem ele, fica a arte original (modelo 1).
+ * Convite completo.
+ * - sem props: arte floral original (modelo 1);
+ * - `fundo`: cor atrás das flores, usando a arte com fundo transparente (modelo 2);
+ * - `arte`: outra imagem de fundo inteira (modelo 3); `fundo` vira a cor de reserva.
  */
-export default function Convite({ fundo }: { fundo?: string }) {
+export default function Convite({ fundo, arte }: { fundo?: string; arte?: string }) {
+  const imagemFundo = arte ?? (fundo ? "/images/arte-fundo-flores.webp" : null);
   const [pagina, setPagina] = useState(0);
   const [direcao, setDirecao] = useState<"avancar" | "voltar">("avancar");
   const [arrasto, setArrasto] = useState(0);
   const tituloRef = useRef<HTMLHeadingElement>(null);
   const seloRef = useRef<HTMLButtonElement>(null);
   const navegou = useRef(false);
+  const viaTeclado = useRef(false);
   const toque = useRef<{ id: number; x: number; y: number; horizontal: boolean | null } | null>(null);
   const arrastou = useRef(false);
   const { title, card } = pages[pagina];
@@ -38,7 +42,10 @@ export default function Convite({ fundo }: { fundo?: string }) {
 
   useEffect(() => {
     if (!navegou.current) return;
-    (capa ? seloRef.current : tituloRef.current)?.focus({ preventScroll: true });
+    // O anel de foco do selo só faz sentido para quem navega pelo teclado;
+    // no toque/arrasto o foco vai para o título (invisível) e nada aparece.
+    const alvo = capa && viaTeclado.current ? seloRef.current : tituloRef.current;
+    alvo?.focus({ preventScroll: true });
   }, [capa, pagina]);
 
   function irPara(destino: number) {
@@ -51,6 +58,7 @@ export default function Convite({ fundo }: { fundo?: string }) {
   useEffect(() => {
     if (capa) return;
     function teclado(e: KeyboardEvent) {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") viaTeclado.current = true;
       if (e.key === "ArrowRight") irPara(pagina + 1);
       if (e.key === "ArrowLeft") irPara(pagina - 1);
     }
@@ -59,6 +67,7 @@ export default function Convite({ fundo }: { fundo?: string }) {
   });
 
   function inicioToque(e: PointerEvent) {
+    viaTeclado.current = false;
     if (capa || (e.pointerType === "mouse" && e.button !== 0)) return;
     arrastou.current = false;
     toque.current = { id: e.pointerId, x: e.clientX, y: e.clientY, horizontal: null };
@@ -104,8 +113,8 @@ export default function Convite({ fundo }: { fundo?: string }) {
     <main
       className={capa ? "invitation invitation--cover" : "invitation invitation--open"}
       style={
-        fundo
-          ? { background: `${fundo} url("/images/arte-fundo-flores.webp") center / cover no-repeat` }
+        imagemFundo
+          ? { background: `${fundo ?? "var(--blue)"} url("${imagemFundo}") center / cover no-repeat` }
           : undefined
       }
       onClick={capa ? () => irPara(1) : undefined}

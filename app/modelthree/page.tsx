@@ -1,6 +1,6 @@
 import Convite from "../convite";
 
-// Modelo 3: arte floral sobre #c1cee4
+// Modelo 3: flores brancas com traço azul sobre #c1cee4
 export default function Page() {
-  return <Convite fundo="#c1cee4" />;
+  return <Convite arte="/images/arte-fundo-modelo3.webp" fundo="#c1cee4" />;
 }
