@@ -35,10 +35,70 @@ button:focus-visible, a:focus-visible {
   background: var(--blue) url("/images/arte-fundo.webp") center / cover no-repeat;
 }
 
+.invitation--cover { cursor: pointer; }
+
+/* Fita com o nome do convidado, presa na borda esquerda */
+.guest-name {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 64px);
+  left: 0;
+  max-width: 75%;
+  margin: 0;
+  filter: drop-shadow(0 2px 3px #283c5959);
+}
+
+.guest-name__ribbon {
+  display: block;
+  padding: 10px 40px 10px calc(env(safe-area-inset-left) + 20px);
+  background:
+    linear-gradient(#c4a65a, #c4a65a) left 4px top 4px / calc(100% - 22px) 1px no-repeat,
+    linear-gradient(#c4a65a, #c4a65a) left 4px bottom 4px / calc(100% - 22px) 1px no-repeat,
+    #fbf6ea;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  /* ponta recortada em "V", como uma fita */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%);
+}
+
+.invitation--open {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  overflow-x: clip;
+}
+
+.invitation .artwork { -webkit-user-drag: none; }
+
 .invitation-page {
   position: relative;
   width: calc(min(100%, var(--content-width)) - 40px);
+  transition: transform 200ms ease-out;
 }
+
+.story-progress {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 8px);
+  left: 50%;
+  display: flex;
+  gap: 4px;
+  width: min(calc(100% - 32px), calc(var(--content-width) - 40px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.story-progress span {
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+  background: #283c5933;
+}
+
+.story-progress span.is-seen { background: #283c59b3; }
 
 .invitation-page--cover {
   display: grid;
@@ -66,52 +126,10 @@ button:focus-visible, a:focus-visible {
 }
 
 .invitation-page--open {
-  animation: reveal 220ms ease-out both;
+  animation: reveal-next 240ms ease-out backwards;
 }
 
-.page-navigation {
-  position: absolute;
-  inset: 0;
-  max-width: var(--content-width);
-  margin-inline: auto;
-  pointer-events: none;
-}
-
-.page-arrow {
-  position: absolute;
-  top: 50%;
-  display: grid;
-  width: 44px;
-  height: 52px;
-  align-items: center;
-  justify-items: start;
-  transform: translateY(-50%);
-  padding: 0 2px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: #485e7a;
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-.page-arrow--previous { left: env(safe-area-inset-left); }
-.page-arrow--next {
-  right: env(safe-area-inset-right);
-  justify-items: end;
-}
-
-.page-arrow svg {
-  width: 20px;
-  height: 20px;
-  filter: drop-shadow(0 1px 1px #ffffff99);
-}
-
-.page-arrow:hover, .page-arrow:active {
-  color: var(--ink);
-}
-
-.page-arrow:focus-visible { outline-offset: -2px; }
+.invitation-page--voltar { animation-name: reveal-previous; }
 
 .map-link {
   position: absolute;
@@ -148,11 +166,17 @@ button:focus-visible, a:focus-visible {
   border: 0;
 }
 
-@keyframes reveal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes reveal-next {
+  from { opacity: 0; transform: translateX(32px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes reveal-previous {
+  from { opacity: 0; transform: translateX(-32px); }
+  to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .invitation-page--open { animation: none; }
+  .invitation-page { transition: none; }
 }
