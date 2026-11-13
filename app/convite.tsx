@@ -14,13 +14,14 @@ const maps = {
 const convidados = ["César", "Márcia"] as const;
 const convidado = convidados.join(" & ");
 
-const cardWidth = 886;
+const cardWidth = 1008;
+const cardHeight = 1527;
 const pages = [
   { title: "Capa do convite", card: null },
   { title: `Convite para ${convidado}`, card: null },
-  { title: "Mariana & Maicon", card: { name: "casamento", height: 1340 } },
-  { title: "Detalhes", card: { name: "detalhes", height: 1340 } },
-  { title: "Programação", card: { name: "programacao", height: 1974 } },
+  { title: "Mariana & Maicon", card: "casamento" },
+  { title: "Detalhes", card: "detalhes" },
+  { title: "Programação", card: "programacao" },
 ];
 
 // Tempo de uma virada completa de página (ms)
@@ -377,15 +378,15 @@ export default function Convite({
             card ? "invitation-page" : n === 0 ? "invitation-page invitation-page--cover" : "invitation-page guest-page"
           }
           aria-labelledby={ativa ? "page-title" : undefined}
-          style={card && !aquarela ? { maxWidth: `calc((var(--page-height) - 24px) * ${cardWidth} / ${card.height})` } : undefined}
+          style={card && !aquarela ? { maxWidth: `calc((var(--page-height) - 24px) * ${cardWidth} / ${cardHeight})` } : undefined}
         >
           {card && !aquarela && (
             <Image
               className="artwork"
-              src={`/images/cartao-${card.name}.webp`}
+              src={`/images/cartao-padrao-${card}.webp`}
               alt=""
               width={cardWidth}
-              height={card.height}
+              height={cardHeight}
               unoptimized
               draggable={false}
             />
