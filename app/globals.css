@@ -2,6 +2,7 @@
   color-scheme: light;
   --blue: #c1cee4;
   --ink: #283c59;
+  --gold: #93731a;
 }
 
 * { box-sizing: border-box; }
@@ -38,32 +39,78 @@ button:focus-visible, a:focus-visible {
 
 .invitation--cover { cursor: pointer; }
 
-/* Fita com o nome do convidado, presa na borda esquerda */
-.guest-name {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 64px);
-  left: 0;
-  max-width: 75%;
-  margin: 0;
-  filter: drop-shadow(0 2px 3px #283c5959);
+/* Contracapa: convite com o nome dos convidados no meio da página */
+.guest-page {
+  display: grid;
+  place-items: center;
+  min-height: 60%;
+  padding: 24px 0;
 }
 
-.guest-name__ribbon {
-  display: block;
-  padding: 10px 40px 10px calc(env(safe-area-inset-left) + 20px);
-  background:
-    linear-gradient(#c4a65a, #c4a65a) left 4px top 4px / calc(100% - 22px) 1px no-repeat,
-    linear-gradient(#c4a65a, #c4a65a) left 4px bottom 4px / calc(100% - 22px) 1px no-repeat,
-    #fbf6ea;
-  color: var(--ink);
-  font-size: 1.25rem;
-  font-style: italic;
-  letter-spacing: 0.05em;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  /* ponta recortada em "V", como uma fita */
-  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%);
+.guest-message {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  position: relative;
+  isolation: isolate; /* mantém a faixa atrás do texto, mas na frente do fundo */
+  padding: 40px 12px;
+  text-align: center;
 }
+
+/* Faixa branca atrás do texto: vai de ponta a ponta da tela, cobre as
+   flores por completo e só some suavemente nas bordas de cima e de baixo */
+.guest-message::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -110px;
+  bottom: -110px;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    #ffffff00 0%,
+    #ffffff 14%,
+    #ffffff 86%,
+    #ffffff00 100%
+  );
+}
+
+.guest-message p { margin: 0; }
+
+.guest-message__intro {
+  max-width: 15em;
+  text-wrap: balance;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.45rem;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: var(--gold);
+}
+
+.guest-message__divider {
+  width: 64px;
+  height: 1px;
+  background: #c4a65a;
+}
+
+/* Nomes em escada: César / & / Márcia, cada linha mais à direita */
+.guest-message__names {
+  display: grid;
+  justify-items: start;
+  font-family: var(--font-script), cursive;
+  font-size: clamp(2.8rem, 13vw, 4rem);
+  line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 1px 0 #ffffffb3;
+}
+
+.guest-message__names span { display: block; }
+.guest-message__amp { margin-left: 1.6em; font-size: 0.85em; }
+.guest-message__second { margin-left: 2.3em; }
 
 .invitation .artwork { -webkit-user-drag: none; }
 
@@ -74,8 +121,226 @@ button:focus-visible, a:focus-visible {
   display: grid;
   place-items: center;
   padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
-  background: var(--blue) url("/images/arte-fundo.webp") center / cover no-repeat;
+  /* o papel da folha fica numa variável para a aba do envelope reaproveitar */
+  --papel: var(--blue) url("/images/arte-fundo.webp") center / cover no-repeat;
+  background: var(--papel);
 }
+
+/* Capa em forma de envelope (carta), com textura de papel */
+.envelope {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  perspective: 1400px;
+}
+
+.envelope__folds,
+.envelope__flap-edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Aba de cima: mesmo papel do envelope, em "V" até o centro, com sombra */
+.envelope__flap-wrap {
+  position: absolute;
+  inset: 0;
+  transform-origin: top center;
+  filter: drop-shadow(0 6px 6px #283c5947);
+}
+
+.envelope__flap {
+  position: absolute;
+  inset: 0;
+  background: var(--papel);
+  clip-path: polygon(0 0, 100% 0, 50% 50%);
+}
+
+/* clareia um pouco a aba para destacar do corpo do envelope */
+.envelope__flap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #ffffff26, #ffffff0d);
+}
+
+/* Corpo do envelope: o papel da capa com as dobras; na abertura ele desce sozinho */
+.envelope__body {
+  position: absolute;
+  inset: 0;
+  background: var(--papel);
+}
+
+/* Fibras do papel + trama de linho + bordas levemente escurecidas */
+.envelope__body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.23 0 0 0 0 0.35 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, #ffffff14 0 1px, #ffffff00 1px 3px),
+    repeating-linear-gradient(90deg, #283c590d 0 1px, #283c5900 1px 3px),
+    radial-gradient(ellipse at center, #283c5900 55%, #283c592e 100%);
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+}
+
+.sheet--capa > section { position: relative; z-index: 3; }
+
+/* Abertura: o selo afunda e se solta, a aba de cima abre para trás
+   e o envelope desce e some, revelando a contracapa */
+.sheet--abrindo {
+  z-index: 3;
+  animation-name: envelope-sair;
+  animation-duration: 1500ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.sheet--abrindo .seal-button {
+  animation-name: selo-soltar;
+  animation-duration: 600ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.sheet--abrindo .envelope__flap-wrap {
+  animation-name: aba-abrir;
+  animation-duration: 680ms;
+  animation-delay: 320ms;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.26, 1);
+  animation-fill-mode: both;
+}
+
+/* A folha fica transparente para a contracapa aparecer enquanto o envelope desce */
+.sheet--capa.sheet--abrindo { background: transparent; }
+
+.sheet--abrindo .envelope__body {
+  animation-name: aquarela-envelope-sair;
+  animation-duration: 960ms;
+  animation-delay: 460ms;
+  animation-timing-function: cubic-bezier(0.55, 0, 0.5, 1);
+  animation-fill-mode: both;
+}
+
+.invitation--opening .sheet--sob .guest-message {
+  animation-name: aquarela-conteudo-entrar;
+  animation-duration: 500ms;
+  animation-delay: 440ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes selo-soltar {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(0.88); opacity: 1; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+@keyframes aba-abrir {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-178deg); }
+}
+
+@keyframes envelope-sair {
+  0%, 68% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(6%); }
+}
+
+/* ===== Modelo 4: carta amarrada com fita de cetim ===== */
+.sheet--fita { --papel-envelope: #ddd3e6; }
+
+.sheet--fita .envelope__flap { background: var(--papel-envelope); }
+
+.ribbon {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* cada metade sai do centro: uma para o canto superior direito, outra para o inferior esquerdo */
+.ribbon__half {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130vmax;
+  height: 30px;
+  margin-top: -15px;
+  transform-origin: 0 50%;
+  background: linear-gradient(to bottom, #c9bad9, #f7f2fa 32%, #e3d9ec 58%, #fbf8fd 74%, #c4b5d4);
+  box-shadow: 0 2px 5px #3c325047;
+}
+
+.ribbon__half--a { transform: rotate(-64deg); }
+.ribbon__half--b { transform: rotate(116deg); }
+
+.bow-button {
+  width: min(56%, 230px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 5px #3c325059);
+}
+
+.laco { display: block; width: 100%; height: auto; }
+
+/* Abertura: o laço se desfaz, a fita escorrega, a aba abre e a carta sai */
+.sheet--fita.sheet--abrindo { animation-duration: 2100ms; }
+
+.sheet--fita.sheet--abrindo .bow-button {
+  animation-name: laco-desfazer;
+  animation-duration: 520ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.sheet--fita.sheet--abrindo .ribbon__half {
+  animation-duration: 700ms;
+  animation-delay: 220ms;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  animation-fill-mode: forwards;
+}
+
+.sheet--fita.sheet--abrindo .ribbon__half--a { animation-name: fita-sair-a; }
+.sheet--fita.sheet--abrindo .ribbon__half--b { animation-name: fita-sair-b; }
+
+.sheet--fita.sheet--abrindo .envelope__flap-wrap { animation-delay: 780ms; }
+
+@keyframes laco-desfazer {
+  0% { transform: scale(1) rotate(0); opacity: 1; }
+  35% { transform: scale(1.08) rotate(-5deg); opacity: 1; }
+  100% { transform: scale(0.3) rotate(28deg); opacity: 0; }
+}
+
+@keyframes fita-sair-a {
+  to { translate: 40vmax -80vmax; opacity: 0; }
+}
+
+@keyframes fita-sair-b {
+  to { translate: -40vmax 80vmax; opacity: 0; }
+}
+
+/* Contracapa do modelo 4: cartão de papel lilás emoldurado pela arte */
+.sheet--fita .guest-message {
+  width: 100%;
+  min-height: min(68svh, 560px);
+  align-content: center;
+  padding: 56px 24px;
+  background:
+    radial-gradient(ellipse at center, #f1ecf500 60%, #c9bad933 100%),
+    var(--papel-envelope);
+  border-radius: 4px;
+  outline: 1px solid #ffffffa6;
+  outline-offset: -10px;
+  box-shadow: 0 14px 34px #2a223d4d, 0 2px 6px #2a223d33;
+}
+
+.sheet--fita .guest-message::before { display: none; }
 
 .sheet--sob { z-index: 1; }
 .sheet--frente { z-index: 3; }
@@ -154,6 +419,253 @@ button:focus-visible, a:focus-visible {
   left: 22.91%;
   width: 35.21%;
 }
+
+/* Modelo 4: envelope pintado e folhas com a moldura de aquarela. */
+.aquarela-stage { background: #526962; }
+
+.invitation--aquarela {
+  container-type: inline-size;
+  max-width: max(340px, 64svh);
+  margin-inline: auto;
+  background: #f4eddf;
+}
+
+.sheet--aquarela {
+  --aquarela-ink: #243e46;
+  --aquarela-gold: #73562c;
+  --aquarela-art-height: max(100svh, calc(100cqw * 1376 / 768));
+  --aquarela-flap-edge: 0 24%, 3% 29.5%, 17% 39%, 30% 47%, 44% 56.8%,
+    48.1% 58.8%, 51.2% 57.6%, 63% 49.8%, 77% 41.6%, 90% 34%, 100% 29.3%;
+}
+
+.sheet--aquarela.sheet--capa::before { content: none; }
+
+.sheet--aquarela.sheet--capa > .invitation-page--cover {
+  position: absolute;
+  top: calc(50% + var(--aquarela-art-height) * 0.085);
+  left: 50%;
+  width: auto;
+  transform: translate(-50%, -50%);
+}
+
+.sheet--aquarela .seal-button { width: clamp(60px, 17cqw, 96px); }
+
+.aquarela-envelope {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: none;
+  height: var(--aquarela-art-height);
+  aspect-ratio: 768 / 1376;
+  transform: translate(-50%, -50%);
+  perspective: 1400px;
+  pointer-events: none;
+}
+
+.aquarela-envelope__body,
+.aquarela-envelope__flap {
+  position: absolute;
+  inset: 0;
+  background: var(--papel);
+}
+
+.aquarela-envelope__body {
+  clip-path: polygon(var(--aquarela-flap-edge), 100% 100%, 0 100%);
+}
+
+.aquarela-envelope__flap {
+  clip-path: polygon(0 0, var(--aquarela-flap-edge), 100% 0);
+  transform-origin: top center;
+}
+
+.sheet--aquarela.sheet--abrindo { background: transparent; }
+.sheet--aquarela.sheet--abrindo .aquarela-envelope { display: block; }
+
+.sheet--aquarela.sheet--abrindo .aquarela-envelope__flap {
+  animation: aba-abrir 680ms 320ms cubic-bezier(0.45, 0, 0.26, 1) both;
+}
+
+.sheet--aquarela.sheet--abrindo .aquarela-envelope__body {
+  animation: aquarela-envelope-sair 960ms 460ms cubic-bezier(0.55, 0, 0.5, 1) both;
+}
+
+@keyframes aquarela-envelope-sair {
+  to { transform: translateY(70%); }
+}
+
+.invitation--opening .sheet--sob .aquarela-content {
+  animation: aquarela-conteudo-entrar 500ms 440ms ease-out both;
+}
+
+@keyframes aquarela-conteudo-entrar {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+.sheet--aquarela:not(.sheet--capa) > .invitation-page {
+  width: min(70%, 360px);
+  min-height: 0;
+  padding: 0;
+  translate: 0 2svh;
+}
+
+.aquarela-content {
+  width: 100%;
+  max-height: min(59svh, calc(var(--page-height) - 48px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #73562c66 transparent;
+  padding: 8px clamp(8px, 2.8cqw, 14px);
+  color: var(--aquarela-ink);
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(0.95rem, 4.2cqw, 1.18rem);
+  font-weight: 500;
+  line-height: 1.22;
+  background: radial-gradient(ellipse at center, #fff9eddb 40%, #fff9ed8c 76%, #fff9ed00 100%);
+}
+
+.aquarela-content p { margin: 0; }
+.sheet--aquarela .guest-message::before { content: none; }
+
+.sheet--aquarela .guest-message {
+  gap: clamp(10px, 2svh, 19px);
+  align-content: center;
+  padding-block: 16px;
+}
+
+.sheet--aquarela .guest-message__intro {
+  color: var(--aquarela-ink);
+  font-size: clamp(1.2rem, 5.2cqw, 1.65rem);
+  letter-spacing: 0;
+}
+
+.sheet--aquarela .guest-message__divider { background: #9f805c; }
+
+.sheet--aquarela .guest-message__names {
+  color: var(--aquarela-gold);
+  font-size: clamp(2.55rem, 11cqw, 4.15rem);
+}
+
+.sheet--aquarela .guest-message__amp { margin-left: 1.35em; }
+.sheet--aquarela .guest-message__second { margin-left: 1.85em; }
+
+.aquarela-wedding {
+  display: grid;
+  gap: clamp(14px, 3.2svh, 32px);
+  text-align: center;
+}
+
+.aquarela-content .aquarela-title {
+  color: var(--aquarela-gold);
+  font-family: var(--font-script), cursive;
+  font-size: clamp(2rem, 9cqw, 3.25rem);
+  font-weight: 400;
+  line-height: 1.06;
+  text-align: center;
+}
+
+.aquarela-wedding .aquarela-title { text-wrap: balance; }
+.aquarela-wedding .aquarela-title span { font-size: 0.72em; }
+.aquarela-verse { font-style: italic; }
+
+.aquarela-event {
+  font-size: 1.15em;
+  line-height: 1.42;
+}
+
+.aquarela-details {
+  display: grid;
+  gap: 0.3em;
+}
+
+.aquarela-details .aquarela-title { margin-bottom: 0.22em; }
+
+.aquarela-details a {
+  color: #245674;
+  text-underline-offset: 2px;
+}
+
+.aquarela-schedule ol {
+  display: grid;
+  gap: 0.3em;
+  margin: 0.75em 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+@container (max-width: 350px) {
+  .aquarela-details, .aquarela-schedule {
+    font-size: clamp(0.875rem, 4.4cqw, 1rem);
+    line-height: 1.12;
+  }
+
+  .aquarela-details { gap: 0.22em; }
+  .aquarela-schedule ol { gap: 0.25em; margin-top: 0.5em; }
+}
+
+@media (max-height: 740px) {
+  .sheet--aquarela:not(.sheet--capa) > .invitation-page { translate: none; }
+  .aquarela-details, .aquarela-schedule {
+    font-size: clamp(0.875rem, 4cqw, 1.08rem);
+    line-height: 1.12;
+  }
+
+  .aquarela-details { gap: 0.18em; }
+  .aquarela-details .aquarela-title { margin-bottom: 0.12em; }
+  .aquarela-schedule ol { gap: 0.25em; }
+}
+
+@media (max-height: 620px) {
+  .sheet--aquarela:not(.sheet--capa) > .invitation-page { translate: 0 -1svh; }
+}
+
+.aquarela-nav {
+  position: absolute;
+  inset-inline: max(4px, env(safe-area-inset-left)) max(4px, env(safe-area-inset-right));
+  top: 50%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.aquarela-nav button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--aquarela-ink);
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.aquarela-nav button::before {
+  content: "";
+  grid-area: 1 / 1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff9edbb;
+}
+
+.aquarela-nav button::after {
+  content: "";
+  grid-area: 1 / 1;
+  width: 7px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 1px 1px 0 0;
+  rotate: var(--aquarela-arrow-angle, 45deg);
+}
+
+.aquarela-nav__back { --aquarela-arrow-angle: -135deg; }
+.aquarela-nav__next { margin-inline-start: auto; }
+.aquarela-nav button:focus-visible { outline-offset: -2px; }
 
 .sr-only {
   position: absolute;
