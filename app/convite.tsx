@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { preload } from "react-dom";
 import { calcularDobra, gradienteDaDobra, poligonoCss } from "./dobra";
 
@@ -241,7 +241,6 @@ export default function Convite({
     viaTeclado.current = false;
     if (viradaAtual.current || (e.pointerType === "mouse" && e.button !== 0)) return;
     arrastou.current = false;
-    if (aquarela && e.target instanceof Element && e.target.closest("button")) return;
     toque.current = { id: e.pointerId, x: e.clientX, y: e.clientY, horizontal: null };
   }
 
@@ -295,20 +294,6 @@ export default function Convite({
   function cancelarToque() {
     toque.current = null;
     if (viradaAtual.current) animarAte(viradaAtual.current.sentido === "avancar" ? 0 : 1);
-  }
-
-  function navegarPorSeta(destino: number) {
-    return {
-      // Processa o toque mesmo quando o navegador suprime o clique após um gesto.
-      onPointerUp: (e: PointerEvent<HTMLButtonElement>) => {
-        if (e.isPrimary && e.pointerType === "touch") irPara(destino);
-      },
-      onClick: (e: MouseEvent<HTMLButtonElement>) => {
-        if (!(e.nativeEvent instanceof window.PointerEvent) || e.nativeEvent.pointerType !== "touch") {
-          irPara(destino);
-        }
-      },
-    };
   }
 
   // Primeiro desenho da dobra (depois ela é atualizada direto no DOM a cada quadro)
@@ -513,16 +498,6 @@ export default function Convite({
             </div>
           )}
         </section>
-        {aquarela && n > 0 && (
-          <nav className="aquarela-nav" aria-label="Páginas do convite">
-            {n > 1 && (
-              <button type="button" className="aquarela-nav__back" aria-label="Voltar uma página" {...navegarPorSeta(n - 1)} />
-            )}
-            {n < pages.length - 1 && (
-              <button type="button" className="aquarela-nav__next" aria-label="Avançar uma página" {...navegarPorSeta(n + 1)} />
-            )}
-          </nav>
-        )}
       </div>
     );
   }
@@ -530,8 +505,8 @@ export default function Convite({
   return (
     <main
       ref={mainRef}
-      className={`invitation${aquarela ? " invitation--aquarela" : ""}${capa && !aquarela ? " invitation--cover" : ""}${abrindo ? " invitation--opening" : ""}`}
-      onClick={capa && !aquarela ? abrirConvite : undefined}
+      className={`invitation${aquarela ? " invitation--aquarela" : ""}${capa ? " invitation--cover" : ""}${abrindo ? " invitation--opening" : ""}`}
+      onClick={capa ? abrirConvite : undefined}
       onClickCapture={(e) => {
         // Um arrasto não deve abrir os links do mapa nem o convite
         if (arrastou.current) {
