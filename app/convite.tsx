@@ -239,8 +239,8 @@ export default function Convite({
   });
 
   function inicioToque(e: PointerEvent) {
+    if (!e.isPrimary || e.button !== 0 || viradaAtual.current) return;
     viaTeclado.current = false;
-    if (viradaAtual.current || (e.pointerType === "mouse" && e.button !== 0)) return;
     arrastou.current = false;
     toque.current = { id: e.pointerId, x: e.clientX, y: e.clientY, horizontal: null };
   }
@@ -285,14 +285,23 @@ export default function Convite({
     if (!t || t.id !== e.pointerId) return;
     toque.current = null;
     const v = viradaAtual.current;
-    if (!t.horizontal || !v) return;
-    arrastou.current = true;
-    const p = progresso.current;
-    if (v.sentido === "avancar") animarAte(p > 0.2 ? 1 : 0);
-    else animarAte(p < 0.8 ? 0 : 1);
+    if (t.horizontal && v) {
+      arrastou.current = true;
+      const p = progresso.current;
+      if (v.sentido === "avancar") animarAte(p > 0.2 ? 1 : 0);
+      else animarAte(p < 0.8 ? 0 : 1);
+      return;
+    }
+
+    if (pagina === 0 || Math.abs(e.clientX - t.x) >= 8 || Math.abs(e.clientY - t.y) >= 8) return;
+    if (e.target instanceof Element && e.target.closest("a, button")) return;
+
+    const { left, width } = e.currentTarget.getBoundingClientRect();
+    irPara(pagina + (e.clientX >= left + width / 2 ? 1 : -1));
   }
 
-  function cancelarToque() {
+  function cancelarToque(e: PointerEvent) {
+    if (toque.current?.id !== e.pointerId) return;
     toque.current = null;
     if (viradaAtual.current) animarAte(viradaAtual.current.sentido === "avancar" ? 0 : 1);
   }
