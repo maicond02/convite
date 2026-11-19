@@ -1,0 +1,169 @@
+/* Convite principal (rota "/"): artes de 768×1376, estendidas para 768×1800
+   (topo e base em espelho desfocado) para cobrir telas de celular mais altas. */
+
+.cp-convite {
+  position: relative;
+  /* No celular ocupa a tela toda; no computador vira uma coluna no formato da arte */
+  width: min(100%, calc(100svh * 768 / 1376));
+  height: 100svh;
+  margin-inline: auto;
+  overflow: hidden;
+  background: #f3efe6;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.cp-convida-abrir { cursor: pointer; }
+
+/* Cada página é uma folha inteira */
+.cp-folha {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  background: #f3efe6;
+}
+
+.cp-sob { z-index: 1; }
+.cp-frente { z-index: 3; }
+
+/* Arte cobrindo a folha; a região central de 1376 px é sempre visível */
+.cp-arte {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, calc(100cqh * 768 / 1800));
+  aspect-ratio: 768 / 1800;
+  translate: -50% -50%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.cp-original {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(212 / 1800 * 100%);
+  height: calc(1376 / 1800 * 100%);
+}
+
+/* ===== Envelope ===== */
+.cp-arte-envelope { perspective: 1400px; }
+
+.cp-env-corpo,
+.cp-env-aba {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Corpo: tudo abaixo do "V" (sobe um pouquinho por baixo da aba para não abrir fresta) */
+.cp-env-corpo {
+  background-image: url("/images/principal/envelope-corpo.webp");
+  clip-path: polygon(0 29.39%, 50.13% 44.94%, 100% 29.17%, 100% 100%, 0 100%);
+}
+
+/* Aba: o "V" de cima, com o nome dos convidados */
+.cp-env-aba {
+  background-image: url("/images/principal/envelope-aba.webp");
+  clip-path: polygon(0 0, 100% 0, 100% 29.389%, 50.13% 45.167%, 0 29.611%);
+  transform-origin: top center;
+}
+
+.cp-selo {
+  position: absolute;
+  top: calc(557 / 1376 * 100%);
+  left: calc(383 / 768 * 100%);
+  width: calc(166 / 768 * 100%);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  translate: -50% -50%;
+}
+
+.cp-selo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+}
+
+.cp-selo:focus-visible { outline: 2px solid #283c59; outline-offset: 4px; }
+
+/* Links do mapa sobre o texto da página de Detalhes */
+.cp-link { position: absolute; border-radius: 3px; }
+.cp-link:hover,
+.cp-link:active { background: #ac8b3622; }
+.cp-link:focus-visible { outline: 2px solid #283c59; outline-offset: 2px; }
+
+/* ===== Virada de página ===== */
+.cp-sombra {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cp-verso-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(40, 60, 89, 0.35));
+}
+
+.cp-verso {
+  position: absolute;
+  inset: 0;
+}
+
+/* ===== Abertura do envelope =====
+   o selo se solta, a aba abre para trás, o corpo desce e a primeira página aparece */
+.cp-abrindo {
+  z-index: 3;
+  background: transparent;
+  animation: cp-envelope-sair 1500ms ease-in forwards;
+}
+
+.cp-abrindo .cp-selo { animation: cp-selo-soltar 600ms ease-out forwards; }
+.cp-abrindo .cp-env-aba { animation: cp-aba-abrir 680ms 320ms cubic-bezier(0.45, 0, 0.26, 1) both; }
+.cp-abrindo .cp-env-corpo { animation: cp-corpo-descer 960ms 460ms cubic-bezier(0.55, 0, 0.5, 1) both; }
+.cp-abrindo-convite .cp-sob .cp-arte { animation: cp-pagina-entrar 900ms 380ms ease-out both; }
+
+@keyframes cp-selo-soltar {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(0.88); opacity: 1; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+@keyframes cp-aba-abrir {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-178deg); }
+}
+
+@keyframes cp-corpo-descer {
+  to { transform: translateY(70%); }
+}
+
+@keyframes cp-envelope-sair {
+  0%, 68% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes cp-pagina-entrar {
+  from { transform: scale(1.04); filter: brightness(0.94); }
+  to { transform: none; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-abrindo,
+  .cp-abrindo .cp-selo,
+  .cp-abrindo .cp-env-aba,
+  .cp-abrindo .cp-env-corpo,
+  .cp-abrindo-convite .cp-sob .cp-arte { animation: none; }
+}

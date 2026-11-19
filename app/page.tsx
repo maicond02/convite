@@ -1,6 +1,6 @@
-import Convite from "./convite";
+import ConvitePrincipal from "./convite-principal";
 
-// Modelo 1: arte floral de fundo
+// Convite principal: envelope pintado + páginas em aquarela
 export default function Page() {
-  return <Convite />;
+  return <ConvitePrincipal />;
 }
